@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -9,7 +11,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final XFile? image;
+  late final File imageFile;
   final ImagePicker _picker = ImagePicker();
   @override
   Widget build(BuildContext context) {
@@ -21,15 +23,23 @@ class _HomePageState extends State<HomePage> {
           children: [
             ElevatedButton(
               onPressed: (() async {
-                image = await _picker.pickImage(source: ImageSource.camera);
-                if (image != null) {}
+                final XFile? image =
+                    await _picker.pickImage(source: ImageSource.camera);
+                if (image != null) {
+                  imageFile = File(image.path);
+                  getBottomSheet();
+                }
               }),
               child: Text("Fotoğraf Çek"),
             ),
             ElevatedButton(
               onPressed: (() async {
-                image = await _picker.pickImage(source: ImageSource.gallery);
-                if (image != null) {}
+                final XFile? image =
+                    await _picker.pickImage(source: ImageSource.gallery);
+                if (image != null) {
+                  imageFile = File(image.path);
+                  getBottomSheet();
+                }
               }),
               child: Text("Galeriden Seç"),
             ),
@@ -37,5 +47,34 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void getBottomSheet() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            margin: const EdgeInsets.all(8),
+            child: Column(
+              children: [
+                Expanded(child: Image.file(imageFile)),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {},
+                      child: Text("Türünü Bul"),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Kapat"),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        });
   }
 }
