@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tflite/tflite.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -77,13 +78,16 @@ class _HomePageState extends State<HomePage> {
           );
         });
   }
-  void predictFromImage() {
-    String res = await Tflite.loadModel(
-  model: "assets/mobilenet_v1_1.0_224.tflite",
-  labels: "assets/labels.txt",
-  numThreads: 1, // defaults to 1
-  isAsset: true, // defaults to true, set to false to load resources outside assets
-  useGpuDelegate: false // defaults to false, set to true to use GPU delegate
-);
+
+  Future<void> predictFromImage() async {
+    String? res = await Tflite.loadModel(
+        model: "assets/birdclass.tflite",
+        labels: "assets/labels.txt",
+        numThreads: 1, // defaults to 1
+        isAsset:
+            true, // defaults to true, set to false to load resources outside assets
+        useGpuDelegate:
+            false // defaults to false, set to true to use GPU delegate
+        );
   }
 }
