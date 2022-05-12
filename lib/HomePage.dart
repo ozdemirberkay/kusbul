@@ -12,7 +12,35 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final File imageFile;
+  late File imageFile;
+  late List _results;
+  @override
+  void initState() {
+    super.initState();
+    loadModel();
+  }
+
+  Future loadModel() async {
+    Tflite.close();
+    String res = (await Tflite.loadModel(
+        model: "assets/model/birdclass.tflite",
+        labels: "assets/model/labels.txt"))!;
+  }
+
+  Future imageClassification(File image) async {
+    final List? recognitions = await Tflite.runModelOnImage(
+      path: image.path,
+      numResults: 6,
+      threshold: 0.05,
+      imageMean: 127.5,
+      imageStd: 127.5,
+    );
+    setState(() {
+      _results = recognitions!;
+      print(_results);
+    });
+  }
+
   final ImagePicker _picker = ImagePicker();
   @override
   Widget build(BuildContext context) {
@@ -63,7 +91,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     ElevatedButton(
                       onPressed: () async {
-                        await predictFromImage();
+                        await imageClassification(imageFile);
                       },
                       child: Text("Türünü Bul"),
                     ),
@@ -79,35 +107,5 @@ class _HomePageState extends State<HomePage> {
             ),
           );
         });
-  }
-
-  Future<void> predictFromImage() async {
-    try {
-      String? res = await Tflite.loadModel(
-        model: "assets/birdclass.tflite",
-        labels: "assets/labels.txt",
-        numThreads: 1, // defaults to 1
-        isAsset:
-            false, // defaults to true, set to false to load resources outside assets
-      );
-      print("1tamam*****");
-
-      var recognitions = await Tflite.runModelOnImage(
-          path: imageFile.path, // required
-          imageMean: 0.0, // defaults to 117.0
-          imageStd: 255.0, // defaults to 1.0
-          numResults: 2, // defaults to 5
-          threshold: 0.2, // defaults to 0.1
-          asynch: true // defaults to true
-          );
-      print("22222tamam*****");
-
-      print(recognitions);
-      print("*******");
-      //print(res);
-    } on Exception catch (e) {
-      print("hata*****");
-      print(e.toString());
-    }
   }
 }
