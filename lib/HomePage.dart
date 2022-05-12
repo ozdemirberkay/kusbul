@@ -62,7 +62,9 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        await predictFromImage();
+                      },
                       child: Text("Türünü Bul"),
                     ),
                     ElevatedButton(
@@ -80,14 +82,32 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> predictFromImage() async {
-    String? res = await Tflite.loadModel(
+    try {
+      String? res = await Tflite.loadModel(
         model: "assets/birdclass.tflite",
         labels: "assets/labels.txt",
         numThreads: 1, // defaults to 1
         isAsset:
-            true, // defaults to true, set to false to load resources outside assets
-        useGpuDelegate:
-            false // defaults to false, set to true to use GPU delegate
-        );
+            false, // defaults to true, set to false to load resources outside assets
+      );
+      print("1tamam*****");
+
+      var recognitions = await Tflite.runModelOnImage(
+          path: imageFile.path, // required
+          imageMean: 0.0, // defaults to 117.0
+          imageStd: 255.0, // defaults to 1.0
+          numResults: 2, // defaults to 5
+          threshold: 0.2, // defaults to 0.1
+          asynch: true // defaults to true
+          );
+      print("22222tamam*****");
+
+      print(recognitions);
+      print("*******");
+      //print(res);
+    } on Exception catch (e) {
+      print("hata*****");
+      print(e.toString());
+    }
   }
 }
